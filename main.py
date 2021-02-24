@@ -61,7 +61,7 @@ class Rider:
     def is_equal(self, name, surname, cat):
         """ determining equality based on name, surname and race category """
         return (self.name.lower() == name.lower()) and (self.surname.lower() == surname.lower()) and (
-                    self.cat.lower() == cat.lower())
+                self.cat.lower() == cat.lower())
 
     def print_points(self):
         """ print list of points"""
@@ -75,6 +75,7 @@ def get_project_root() -> Path:
 
 
 def read_results(dir_path, rider_data):
+    """Import results. Currently, only results from https://www.e-cycling-austria.at/ are supported"""
     file_count = 0
     for filename in tqdm(os.listdir(dir_path)):
         if filename.endswith(".pdf"):
@@ -124,7 +125,7 @@ def print_current_leaderboard(riders, cat):
     place = 1
     print('Pos. Name \t\t races \t current (predicted || avg || trend)')
     for rider in riders:
-        if rider.cat == cat:
+        if rider.cat.lower() == cat.lower():
             print('{} {} \t\t {} \t {} ({} || {} || {})'.format(place, rider.name, rider.races_participated,
                                                                 rider.overall_points,
                                                                 rider.predicted_points,
@@ -142,7 +143,7 @@ def print_predicted_results(riders, cat):
     place = 1
     print('Pos. Name \t\t races \t predicted (current || avg || trend)')
     for rider in riders:
-        if rider.cat == cat:
+        if rider.cat.lower() == cat.lower():
             print('{} {} \t\t {} \t {} ({} || {} || {})'.format(place, rider.name, rider.races_participated,
                                                                 rider.predicted_points, rider.overall_points,
                                                                 rider.avg_points, rider.trend))
@@ -150,9 +151,22 @@ def print_predicted_results(riders, cat):
 
 
 def print_rider(rider_data, name, surname, cat):
+    found = False
     for rider in rider_data:
         if rider.is_equal(name, surname, cat):
             rider.print_points()
+            found = True
+            break
+    if not found:
+        print("Rider not found")
+
+
+def determine_existing_categories(rider_data):
+    cat = []
+    for rider in rider_data:
+        if not rider.cat in cat:
+            cat.append(rider.cat)
+    return cat
 
 
 class ProgramShell(cmd.Cmd):
@@ -163,21 +177,44 @@ class ProgramShell(cmd.Cmd):
     def __init__(self, dataset):
         super(ProgramShell, self).__init__()
         self.data = dataset
+        self.existing_cat = determine_existing_categories(dataset)
 
     def do_predict(self, arg):
-        'Display predicted race series results. Category must match exactly: PREDICT Category'
-        print_predicted_results(self.data, *parse(arg))
+        argsplit = parse(arg)
+        if len(argsplit) != 1:
+            print("Invalid number of arguments - expected three: PREDICT Category")
+        else:
+            print_predicted_results(self.data, argsplit[0])
+
+    def help_predict(self):
+        print(
+            f'Display predicted race series results. Category must match exactly. \n  Available categories: {self.existing_cat} \n  --> PREDICT Category')
 
     def do_riderstats(self, arg):
-        'Displays stats of a dedicated rider. Name, Surname and Category must exactly match: RIDERSTATS NAME SURNAME CATEGORY'
-        print_rider(self.data, *parse(arg))
+        argsplit = parse(arg)
+        if len(argsplit) != 3:
+            print("Invalid number of arguments - expected three: RIDERSTATS Name Surname Category")
+        else:
+            print_rider(self.data, argsplit[0], argsplit[1], argsplit[2])
+
+    def help_riderstats(self):
+        print(
+            'Displays stats of a dedicated rider. Name, Surname and Category must match exactly. \n  Available categories: {} \n  --> RIDERSTATS NAME SURNAME CATEGORY'.format(
+                self.existing_cat))
 
     def do_leaderboard(self, arg):
-        "Display current leaderboard. Category must match exactly: LEADERBOARD Category"
-        print_current_leaderboard(self.data, *parse(arg))
+        argsplit = parse(arg)
+        if len(argsplit) != 1:
+            print("Invalid number of arguments - expected one: LEADERBOARD Category")
+        else:
+            print_current_leaderboard(self.data, argsplit[0])
 
-    def do_exit(self, arg):
-        'Stop recording, close the turtle window, and exit:  EXIT'
+    def help_leaderboard(self):
+        print(
+            f'Display current leaderboard. Category must match exactly. \n  Available categories {self.existing_cat}: \n  --> LEADERBOARD Category')
+
+    def do_exit(self):
+        'Stop recording, close the turtle window, and exit:\n  --> EXIT'
         print('Thank you for using Turtle')
         # self.close()
         return True
