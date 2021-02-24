@@ -5,6 +5,7 @@ import cmd
 from tqdm import tqdm
 from pathlib import Path
 
+
 class Rider:
     total_races = 9
     races_happened = 7  # this is overwritten later by number of found result files
@@ -59,7 +60,8 @@ class Rider:
 
     def is_equal(self, name, surname, cat):
         """ determining equality based on name, surname and race category """
-        return (self.name == name) and (self.surname == surname) and (self.cat == cat)
+        return (self.name.lower() == name.lower()) and (self.surname.lower() == surname.lower()) and (
+                    self.cat.lower() == cat.lower())
 
     def print_points(self):
         """ print list of points"""
