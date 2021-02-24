@@ -1,9 +1,9 @@
 import pdfplumber
 import os
+import argparse
+import cmd
+from tqdm import tqdm
 from pathlib import Path
-
-dir_path = "C:\\Users\\Dell-Laptop\\PycharmProjects\\ECyclyAutStats\\results\\"
-
 
 class Rider:
     total_races = 9
@@ -72,9 +72,9 @@ def get_project_root() -> Path:
     return Path(__file__).parent
 
 
-def read_results(rider_data):
+def read_results(dir_path, rider_data):
     file_count = 0
-    for filename in os.listdir(dir_path):
+    for filename in tqdm(os.listdir(dir_path)):
         if filename.endswith(".pdf"):
             file_count += 1
             pdf_file = os.path.join(dir_path, filename)
@@ -153,7 +153,47 @@ def print_rider(rider_data, name, surname, cat):
             rider.print_points()
 
 
+class ProgramShell(cmd.Cmd):
+    intro = "Welcome to the Race Analyzer. All Result files were imported. Type help or ? to list all commands\n"
+    prompt = '> '
+    file = None
+
+    def __init__(self, dataset):
+        super(ProgramShell, self).__init__()
+        self.data = dataset
+
+    def do_predict(self, arg):
+        'Display predicted race series results. Category must match exactly: PREDICT Category'
+        print_predicted_results(self.data, *parse(arg))
+
+    def do_riderstats(self, arg):
+        'Displays stats of a dedicated rider. Name, Surname and Category must exactly match: RIDERSTATS NAME SURNAME CATEGORY'
+        print_rider(self.data, *parse(arg))
+
+    def do_leaderboard(self, arg):
+        "Display current leaderboard. Category must match exactly: LEADERBOARD Category"
+        print_current_leaderboard(self.data, *parse(arg))
+
+    def do_exit(self, arg):
+        'Stop recording, close the turtle window, and exit:  EXIT'
+        print('Thank you for using Turtle')
+        # self.close()
+        return True
+
+
+def parse(arg):
+    'Convert a series of zero or more numbers to an argument tuple'
+    return tuple(arg.split())
+
+
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--dir')
+    args = parser.parse_args()
+    inp_dir_path = args.dir
+
+    # Read data based on given directory
     data = []
-    read_results(data)
-    print_predicted_results(data, "BIKECARD")
+    read_results(inp_dir_path, data)
+
+    ProgramShell(data).cmdloop()
