@@ -39,6 +39,15 @@ You have the following options:
 * print a predicted leaderboard
 * show stats of a dedicated rider
 
+```
+#example
+$ Welcome to the Race Analyzer. All Result files were imported. Type help or ? to list all commands
+$
+$ > predict BIKECARD
+$ Pos.  Name            races  predicted  (current  || avg      || trend   )
+$ ...
+$ 4     GUDER           7      914.67     (880      || 125.71   || 132.33  )
+```
 ## License
 
 See the [LICENSE](./LICENSE.md) file for license rights and limitations.
