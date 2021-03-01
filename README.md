@@ -15,7 +15,7 @@ Requirements: Python 3.5+ installed.
 $ pip3 install -r requirements.txt
 
 # Now you can run the ECycle-Predictron
-$ python3 main.py directoryname
+$ python3 main.py --dir directoryname
 ```
 directoryname is the path to a directory, where all of your race results are stored as PDF.
 
@@ -29,7 +29,7 @@ C:\Users\ECycle-Predictron\results
 Copy all pdfs of the race results of the E-Cycling-Leaque-Austria into this folder.
 Now run
 ```
-$ python3 main.py results
+$ python3 main.py --dir results
 ```
 
 All of the results in the PDFs will be imported. Now you can follow the instructions of the command line program.
