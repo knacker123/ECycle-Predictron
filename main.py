@@ -124,13 +124,14 @@ def print_current_leaderboard(riders, cat):
     :param cat: race category, which should be predicted. String must exactly match the race category
     """
     place = 1
-    print('Pos. Name \t\t races \t current (predicted || avg || trend)')
+    print(f"{'Pos.':<5} {'Name':<15} {'races':<6} {'predicted':<10} ({'current':<8} || {'avg':<8} || {'trend':<8})")
     for rider in riders:
         if rider.cat.lower() == cat.lower():
-            print('{} {} \t\t {} \t {} ({} || {} || {})'.format(place, rider.name, rider.races_participated,
-                                                                rider.overall_points,
-                                                                rider.predicted_points,
-                                                                rider.avg_points, rider.trend))
+            print('{:<5} {:<15} {:<6} {:<10} ({:<8.2f} || {:<8.2f} || {:<8.2f})'.format(place, rider.name,
+                                                                                        rider.races_participated,
+                                                                                        rider.overall_points,
+                                                                                        rider.predicted_points,
+                                                                                        rider.avg_points, rider.trend))
             place += 1
 
 
@@ -142,12 +143,14 @@ def print_predicted_results(riders, cat):
     """
     riders.sort(key=lambda x: x.predicted_points, reverse=True)
     place = 1
-    print('Pos. Name \t\t races \t predicted (current || avg || trend)')
+    print(f"{'Pos.':<5} {'Name':<15} {'races':<6} {'predicted':<10} ({'current':<8} || {'avg':<8} || {'trend':<8})")
     for rider in riders:
         if rider.cat.lower() == cat.lower():
-            print('{} {} \t\t {} \t {} ({} || {} || {})'.format(place, rider.name, rider.races_participated,
-                                                                rider.predicted_points, rider.overall_points,
-                                                                rider.avg_points, rider.trend))
+            print('{:<5} {:<15} {:<6} {:<10.2f} ({:<8} || {:<8.2f} || {:<8.2f})'.format(place, rider.name,
+                                                                                        rider.races_participated,
+                                                                                        rider.predicted_points,
+                                                                                        rider.overall_points,
+                                                                                        rider.avg_points, rider.trend))
             place += 1
 
 
