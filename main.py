@@ -3,7 +3,6 @@ import os
 import argparse
 import cmd
 from tqdm import tqdm
-from pathlib import Path
 
 
 class Rider:
@@ -63,15 +62,17 @@ class Rider:
         return (self.name.lower() == name.lower()) and (self.surname.lower() == surname.lower()) and (
                 self.cat.lower() == cat.lower())
 
-    def print_points(self):
-        """ print list of points"""
+    def print_stats(self):
+        """ print all relevant rider stats"""
         print('{} {}'.format(self.name, self.surname))
+        print('{}'.format(self.cat))
+        print(f"Participated in {self.races_participated} of {Rider.races_happened} races")
+        print(f"Points achieved: {self.overall_points}")
         for pts_of_event in self.points:
-            print(pts_of_event)
-
-
-def get_project_root() -> Path:
-    return Path(__file__).parent
+            print(f"  {pts_of_event}")
+        print("Average points: {:.2f}".format(self.avg_points))
+        print("Trending points: {:.2f}".format(self.trend))
+        print("Points predicted {:.2f}".format(self.predicted_points))
 
 
 def read_results(dir_path, rider_data):
@@ -154,7 +155,7 @@ def print_rider(rider_data, name, surname, cat):
     found = False
     for rider in rider_data:
         if rider.is_equal(name, surname, cat):
-            rider.print_points()
+            rider.print_stats()
             found = True
             break
     if not found:
@@ -213,10 +214,9 @@ class ProgramShell(cmd.Cmd):
         print(
             f'Display current leaderboard. Category must match exactly. \n  Available categories {self.existing_cat}: \n  --> LEADERBOARD Category')
 
-    def do_exit(self):
+    def do_exit(self, arg):
         'Stop recording, close the turtle window, and exit:\n  --> EXIT'
         print('Thank you for using Turtle')
-        # self.close()
         return True
 
 
