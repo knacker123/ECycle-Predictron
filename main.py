@@ -77,7 +77,9 @@ class Rider:
 
 def read_results(dir_path, rider_data):
     """Import results. Currently, only results from https://www.e-cycling-austria.at/ are supported"""
+    cat_list = ["BIKECARD", "ELITE", "JUNIORS", "AMATEURE/MASTERS", "YOUTH"]
     file_count = 0
+    lines_list = []
     for filename in tqdm(os.listdir(dir_path)):
         if filename.endswith(".pdf"):
             file_count += 1
@@ -90,31 +92,42 @@ def read_results(dir_path, rider_data):
             pdf.close()
             # extract line to RacerInfo
             del lines[0:6]
-            for line in lines:
-                words = line.split(" ")
-                if words[0] != "DSQ" and words[0] != "DNF" and words[0] != "*":
-                    rider_found = False
-                    # TODO add correctness check
-                    name = words[2]
-                    surname = words[3]
-                    if len(words[-2].split(".")) == 2:
-                        points_for_race = words[-1]
-                    else:
-                        points_for_race = words[-2]
-                    cat = words[4]
-                    for rider in rider_data:
-                        if rider.is_equal(name, surname, cat):
-                            rider.add_result(points_for_race)
-                            rider_found = True
-                            break
-                    if not rider_found:
-                        new_rider = Rider(name, surname, cat)
-                        new_rider.add_result(points_for_race)
-                        rider_data.append(new_rider)
+            lines_list.append(lines)
             continue
         else:
             continue
     Rider.races_happened = file_count
+
+    for lines in lines_list:
+        for line in lines:
+            words = line.split(" ")
+            if words[0] != "DSQ" and words[0] != "DNF" and words[0] != "*":
+                rider_found = False
+                # TODO add correctness check
+                name = words[2]
+                surname = words[3]
+                if len(words[-2].split(".")) == 2:
+                    points_for_race = words[-1]
+                else:
+                    points_for_race = words[-2]
+                catit = 4
+                cat = words[catit]
+                # handle more than one surname
+                while cat not in cat_list and catit < len(words):
+                    catit += 1
+                    cat = words[catit]
+                sex = words[catit + 1]
+                cat = cat + "-" + sex
+                # print(f"{name} {surname} {cat}")
+                for rider in rider_data:
+                    if rider.is_equal(name, surname, cat):
+                        rider.add_result(points_for_race)
+                        rider_found = True
+                        break
+                if not rider_found:
+                    new_rider = Rider(name, surname, cat)
+                    new_rider.add_result(points_for_race)
+                    rider_data.append(new_rider)
 
 
 def print_current_leaderboard(riders, cat):
