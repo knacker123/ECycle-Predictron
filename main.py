@@ -42,7 +42,9 @@ class Rider:
         """ Add race result to points"""
         int_val = int(val)
         self.points.append(int_val)
-        self.overall_points += int_val
+        cpy_point_list_sorted_desc = sorted(self.points, reverse=True)
+        counting_results = cpy_point_list_sorted_desc[:Rider.races_counting]  # TODO improve performance
+        self.overall_points = sum(counting_results)
         self.avg_points = self.overall_points / len(self.points)
         self.races_participated = len(self.points)
         self.predict_points()
