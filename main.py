@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 class Rider:
     total_races = 9
-    races_happened = 7  # this is overwritten later by number of found result files
+    races_happened = 8  # this is overwritten later by number of found result files # TODO pls check, if var is overwritten early enough
     races_counting = 7  # number of races counting for the final results
 
     def __init__(self, name, surname, cat):
@@ -26,32 +26,29 @@ class Rider:
         # less/equal than races counting -> no results will be scratched
         if (self.races_counting - self.races_participated) >= races_remain:
             self.predicted_points = self.overall_points + races_remain * self.trend
-        # one can chose, which result should count
+            # one can chose, which result should count
         else:
-            cpy_point_list_sorted_desc = sorted(self.points, reverse=True)
-            cpy_list_len = len(cpy_point_list_sorted_desc)
-            nr_of_possible_scratches = max(0, races_remain - (self.races_counting - self.races_participated))
-            # replace scratch results in list (with trend of last 3 races)
-            for i in range(cpy_list_len - nr_of_possible_scratches, cpy_list_len):
-                cpy_point_list_sorted_desc[i - 1] = self.trend
-            predicted_list_pts = sum(cpy_point_list_sorted_desc)
-            self.predicted_points = predicted_list_pts + (
-                    self.races_counting - self.races_participated) * self.trend
+            cpy_point_list = self.points.copy()
+            for i in range(0, races_remain):
+                cpy_point_list.append(self.trend)
+            cpy_point_list_sorted_desc = sorted(cpy_point_list, reverse=True)
+            self.predicted_points = sum(cpy_point_list_sorted_desc[:self.races_counting])
 
     def add_result(self, val):
         """ Add race result to points"""
         int_val = int(val)
         self.points.append(int_val)
-        cpy_point_list_sorted_desc = sorted(self.points, reverse=True)
+        # calc overall points (best of X from all races happened)
+        cpy_point_list_sorted_desc = sorted(self.points, reverse=True).copy()
         counting_results = cpy_point_list_sorted_desc[:Rider.races_counting]  # TODO improve performance
         self.overall_points = sum(counting_results)
         self.avg_points = self.overall_points / len(self.points)
         self.races_participated = len(self.points)
-        self.predict_points()
         if len(self.points) < 3:
             self.trend = self.avg_points
         else:
             self.trend = sum(self.points[-3:]) / 3
+        self.predict_points()  # TODO improve performance
 
     def get_points_total(self):
         result = 0
