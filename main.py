@@ -137,7 +137,8 @@ def print_current_leaderboard(riders, cat):
     :param cat: race category, which should be predicted. String must exactly match the race category
     """
     place = 1
-    print(f"{'Pos.':<5} {'Name':<15} {'races':<6} {'predicted':<10} ({'current':<8} || {'avg':<8} || {'trend':<8})")
+    riders.sort(key=lambda x: x.overall_points, reverse=True)
+    print(f"{'Pos.':<5} {'Name':<15} {'races':<6} {'current':<10} ({'predicted':<8} || {'avg':<8} || {'trend':<8})")
     for rider in riders:
         if rider.cat.lower() == cat.lower():
             print('{:<5} {:<15} {:<6} {:<10} ({:<8.2f} || {:<8.2f} || {:<8.2f})'.format(place, rider.name,
